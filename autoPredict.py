@@ -8,11 +8,16 @@ import pandas as pd
 #season_2 = genfromtxt('season 2.csv', skip_header=1, dtype = float, delimiter=',')
 
 def vectorOfStats(tempRow, predictors):
+#Get the correct predictors for the stats and return a vector of them
 	vector = []
 	for p in predictors:
 		vector.append(int(tempRow[p]))
 	return vector
 
+'''The main function.  This will loop through the players within
+the player csv.  It will pull necessary training data from the all-seasons csv.
+It will add them correctly to the x and y train/test sets, and then run 
+the neural network and output the predicted stat.'''
 def predictStat(playerStats, allStats, stat1, predictors):
 	testVector = []
 	copyTest = []
@@ -35,6 +40,7 @@ def predictStat(playerStats, allStats, stat1, predictors):
 	testVector = testVector.flatten()
 	numInputs = (seasonNum)*len(predictors)
 
+	#How many previous seasons to use for training/testing data
 	if(seasonNum > 16):
 		copyTest = copyTest[len(copyTest)-2:]
 	elif(seasonNum > 8):
@@ -146,6 +152,7 @@ def predictStat(playerStats, allStats, stat1, predictors):
 	# statAdjustDict2 = {'G':0, 'MP':2, 'PTS':2.5, 'ORB':.4, 'DRB':.8, 'AST':.8, 'STL':.15, 'BLK':.25, 'TOV':.15,'3P':.4}
 
 	def improvementFunction(num):
+	#Function to aid in improvement of younger players
 		return (seasonNum-7)*(-num/5)
 
 	statAdjustDict = {
@@ -185,7 +192,8 @@ csvFile = 'all-seasons.csv'
 allStats = pd.read_csv(csvFile)
 
 for f in sorted(os.listdir(directory)):
-
+#Run the predictStat method on all players within directory
+#Need the csv file containing the player's previous stats
 	playerCSV = directory+f
 	playerStats = pd.read_csv(playerCSV)
 	firstName = f[:f.index('_')]
@@ -194,7 +202,10 @@ for f in sorted(os.listdir(directory)):
 	print(playerName + ' starting.')
 
 
+	#These are the stats we want to predict
 	stats = ['G', 'MP', 'PTS', '3P', 'ORB', 'DRB', 'AST', 'TOV', 'STL', 'BLK']
+
+	#These are the categories used to predict the corresponding index in 'stats'
 	predictors = [['G', 'MP', 'PTS'],
 				['MP', 'G', 'PTS'],
 				['PTS', 'G', '3P'],
@@ -208,12 +219,16 @@ for f in sorted(os.listdir(directory)):
 				]
 	finalStats = []
 
+	#Predict for each stat within 'stats' list
 	for s in range(len(stats)):
 		statPrediction = predictStat(playerStats, allStats, stats[s], predictors[s])
 		finalStats.append(statPrediction)	
 		print(stats[s] + ': ' + str(statPrediction))
 
 
+
+
+	#Used for outputting/printing the predicitons
 	gamesPlayed = finalStats[0]
 	index = [playerName]
 	d = {'G' : pd.Series([round(gamesPlayed, 0)], index=index),
@@ -227,9 +242,9 @@ for f in sorted(os.listdir(directory)):
 		'STL' : pd.Series([round(finalStats[8]/gamesPlayed,1)], index=index),
 		'BLK' : pd.Series([round(finalStats[9]/gamesPlayed,1)], index=index)
 		}
-
-	df = pd.DataFrame(d, columns=['G', 'MP', 'PTS', '3P', 'ORB', 'DRB', 'AST', 'TOV', 'STL', 'BLK'])
 	
+	#Output prediction to a csv file
+	df = pd.DataFrame(d, columns=['G', 'MP', 'PTS', '3P', 'ORB', 'DRB', 'AST', 'TOV', 'STL', 'BLK'])
 	with open('output2.csv', 'a') as out:
 		df.to_csv(out, header=False)
 	print(playerName + ' stats predicted.')

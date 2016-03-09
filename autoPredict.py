@@ -1,3 +1,7 @@
+'''Python file to predict stats of players within player directory.
+Will predict 10 major categories, using relevant stats from previous seasons
+and previous players since 1980.'''
+
 from NeuralNetwork import Neural_Network,trainer
 import numpy as np
 import csv

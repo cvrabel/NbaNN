@@ -79,35 +79,6 @@ class Neural_Network(object):
         partialDerivW1, partialDerivW2 = self.costFunctionPrime(X, y)
         return np.concatenate((partialDerivW1.ravel(), partialDerivW2.ravel()))
 
-    def computeNumericalGradient(NN, X, y):
-        W1W2 = NN.getParams()
-
-        numgrad = np.zeros(W1W2.shape)
-        movement = np.zeros(W1W2.shape)
-        e = 1e-4
-        #Test 1 gradient at a time for gradient descent
-        for i in range(len(W1W2)):
-            #Set perturbation vector
-            movement[i] = e
-
-            #Add and subtract epsilon then compute cost
-            N.setParams(W1W2 + movement)
-            loss2 = NN.costFunction(X, y)
-
-            N.setParams(W1W2 - movement)
-            loss1 = NN.costFunction(X, y)
-
-            #Find slope between two costs
-            numgrad[i] = (loss2 - loss1) / (2*e)
-
-            #Return the value we changed to zero:
-            movement[i] = 0
-            
-        #Return Params to original value:
-        NN.setParams(W1W2)
-
-        #Return matrix of size of Weights
-        return numgrad 
         
 ## ----------------------- Part 6 ---------------------------- ##
 from scipy import optimize
@@ -146,12 +117,12 @@ class trainer(object):
         
         #Use the scipy optimize function
         #Use BFGS to estimate the curvature and useful for batch descent
-        params0 = self.NN.getParams()
+        parameters = self.NN.getParams()
         options = {'maxiter': 600, 'disp' : False}
 
         #First parameter must be a function that accepts vector of parameters and in/out data
         #and returns the costs and gradients 
-        _res = optimize.minimize(self.costFunctionWrapper, params0, jac=True, method='BFGS', \
+        _res = optimize.minimize(self.costFunctionWrapper, parameters, jac=True, method='BFGS', \
                                  args=(trainX, trainY), options=options, callback=self.callbackF)
 
         self.NN.setParams(_res.x)

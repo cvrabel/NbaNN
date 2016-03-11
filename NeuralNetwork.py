@@ -1,3 +1,4 @@
+#Neural Network - initialize with specific input, hidden, and output sizes
 import numpy as np
 
 class Neural_Network(object):
@@ -13,7 +14,7 @@ class Neural_Network(object):
         #W2 for weights from hidden to output (initialized as random)
         self.W2 = np.random.randn(self.hiddenLayerSize,self.outputLayerSize)
         
-        #Regularization Parameter:
+        #Regularization Parameter: for overfit
         self.Lambda = Lambda
         
     def propogation(self, inputX):
@@ -80,9 +81,9 @@ class Neural_Network(object):
         return np.concatenate((partialDerivW1.ravel(), partialDerivW2.ravel()))
 
         
-## ----------------------- Part 6 ---------------------------- ##
-from scipy import optimize
 
+#Trainer - takes a Neural Network and trains on given x and y data sets
+from scipy import optimize
 
 ##Need to modify trainer class a bit to check testing error during training:
 class trainer(object):
